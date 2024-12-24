@@ -42,19 +42,13 @@
 -   [引用](#citing)
 -   [贡献](#contributing)
 
-## Who is this document for?
+## 这份文件为谁而写？
 
-This document is for engineers and researchers (both individuals and teams)
-interested in **maximizing the performance of deep learning models**. We assume
-basic knowledge of machine learning and deep learning concepts.
+- 这份文件是为对**深度学习模型性能最大化**感兴趣的工程师和研究人员（个人和团队）准备的。我们假设读者具备基本的机器学习和深度学习概念知识。
 
-Our emphasis is on the **process of hyperparameter tuning**. We touch on other
-aspects of deep learning training, such as pipeline implementation and
-optimization, but our treatment of those aspects is not intended to be complete.
+- 我们的重点在于**超参数调整**的过程。我们还会涉及深度学习训练的其他方面，如管道实现和优化，但对这些方面的处理并不旨在全面。
 
-We assume the machine learning problem is a supervised learning problem or
-something that looks a lot like one (e.g. self-supervised). That said, some of
-the prescriptions in this document may also apply to other types of problems.
+- 我们假设机器学习问题是监督学习问题或类似的问题（例如自监督）。不过，本文件中的某些建议也可能适用于其他类型的问题。
 
 ## Why a tuning playbook?
 
