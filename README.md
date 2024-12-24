@@ -13,9 +13,9 @@
 
 ## Table of Contents
 
--   [一、这份文件为谁而写？](#who-is-this-document-for)
--   [二、为什么需要这本书?](#why-a-tuning-playbook)
--   [三、如何开始一个深度学习项目](#guide-for-starting-a-new-project)
+-   [一、这份文件为谁而写？](#这份文件为谁而写？)
+-   [二、为什么需要这本书?](#为什么需要这本书?)
+-   [三、如何开始一个深度学习项目](#如何开始一个深度学习项目)
     -   [3.1 选择模型架构](#choosing-the-model-architecture)
     -   [3.2 选择优化器](#choosing-the-optimizer)
     -   [3.3 选择批次大小](#choosing-the-batch-size)
@@ -48,63 +48,19 @@
 
 - 我们的重点在于**超参数调整**的过程。我们还会涉及深度学习训练的其他方面，如管道实现和优化，但对这些方面的处理并不旨在全面。
 
-- 我们假设机器学习问题是监督学习问题或类似的问题（例如自监督）。不过，本文件中的某些建议也可能适用于其他类型的问题。
+- 我们假设机器学习问题是**监督学习问题或类似的问题**（例如自监督）。不过，本文件中的某些建议**也可能**适用于其他类型的问题。
 
-## Why a tuning playbook?
+## 为什么需要这本书?
 
-Currently, there is an astonishing amount of toil and guesswork involved in
-actually getting deep neural networks to work well in practice. Even worse, the
-actual recipes people use to get good results with deep learning are rarely
-documented. Papers gloss over the process that led to their final results in
-order to present a cleaner story, and machine learning engineers working on
-commercial problems rarely have time to take a step back and generalize their
-process. Textbooks tend to eschew practical guidance and prioritize fundamental
-principles, even if their authors have the necessary experience in applied work
-to provide useful advice. When preparing to create this document, we couldn't
-find any comprehensive attempt to actually explain *how to get good results with
-deep learning*. Instead, we found snippets of advice in blog posts and on social
-media, tricks peeking out of the appendix of research papers, occasional case
-studies about one particular project or pipeline, and a lot of confusion. There
-is a vast gulf between the results achieved by deep learning experts and less
-skilled practitioners using superficially similar methods. At the same time,
-these very experts readily admit some of what they do might not be
-well-justified. As deep learning matures and has a larger impact on the world,
-the community needs more resources covering useful recipes, including all the
-practical details that can be so critical for obtaining good results.
+目前，在实际中让深度神经网络表现良好需要大量的工作和尝试。**糟糕的是，人们获得良好结果的实际方法很少被记录下来**。论文往往会忽略导致最终结果的过程，以便呈现一个更干净的故事，而处理商业问题的机器学习工程师通常没有时间退一步总结他们的方法。不仅如此，现有的教科书往往很少提供实用指导，而是优先考虑基本原理。在准备编写这份文档时，我们找不到任何全面解释如何通过深度学习获得良好结果的尝试。相反，我们发现了**①**一些博客文章和社交媒体上的零散建议；**②**部分研究论文附录中透露的一些技巧；**③**偶尔有关于一个特定项目或管道的案例研究；以及**④**大量的困惑。**深度学习专家和实践技能较低的初学者之间存在着巨大的差距**（尽管他们看上去使用的是类似的方法架构）。 与此同时，这些专家也承认他们所做的某些工作可能并不完全站得住脚。随着深度学习的成熟并在世界范围内产生更大的影响，**社区需要更多的资源，包括所有可能对获得良好结果至关重要的实用细节**。
 
-We are a team of five researchers and engineers who have worked in deep learning
-for many years, some of us since as early as 2006. We have applied deep learning
-to problems in everything from speech recognition to astronomy, and learned a
-lot along the way. This document grew out of our own experience training neural
-networks, teaching new machine learning engineers, and advising our colleagues
-on the practice of deep learning. Although it has been gratifying to see deep
-learning go from a machine learning approach practiced by a handful of academic
-labs to a technology powering products used by billions of people, deep learning
-is still in its infancy as an engineering discipline and we hope this document
-encourages others to help systematize the field's experimental protocols.
+我们是一个由五名研究人员和工程师组成的团队，多年来一直在深度学习领域工作，有些人甚至可以追溯到 2006 年。我们已经将深度学习应用于从语音识别到天文学等各种问题，并在过程中学到了很多。这份文件源于我们自己训练神经网络、教授新的机器学习工程师以及指导同事进行深度学习实践的经验。尽管看到深度学习从少数实验室采用的一种机器学习方法，发展成为一种被数十亿人使用的科技产品，这让我们感到非常欣慰，但深度学习作为一门工程学科仍然处于初级阶段，我们希望这份文件能够鼓励其他人帮助系统化该领域的实验规范。
 
-This document came about as we tried to crystalize our own approach to deep
-learning and thus it represents the opinions of the authors at the time of
-writing, not any sort of objective truth. Our own struggles with hyperparameter
-tuning made it a particular focus of our guidance, but we also cover other
-important issues we have encountered in our work (or seen go wrong). Our
-intention is for this work to be a living document that grows and evolves as our
-beliefs change. For example, the material on debugging and mitigating training
-failures would not have been possible for us to write two years ago since it is
-based on recent results and ongoing investigations. Inevitably, some of our
-advice will need to be updated to account for new results and improved
-workflows. We do not know the *optimal* deep learning recipe, but until the
-community starts writing down and debating different procedures, we cannot hope
-to find it. To that end, we would encourage readers who find issues with our
-advice to produce alternative recommendations, along with convincing evidence,
-so we can update the playbook. We would also love to see alternative guides and
-playbooks that might have different recommendations so we can work towards best
-practices as a community. Finally, any sections marked with a 🤖 emoji are places
-we would like to do more research. Only after trying to write this playbook did
-it become completely clear how many interesting and neglected research questions
-can be found in the deep learning practitioner's workflow.
+这份文件是我们在尝试固化我们自己的深度学习方法时产生的，因此它仅代表了作者的观点，而不是任何客观真理。我们自己在超参数调优方面的挣扎使它成为我们指导的重点，但也涵盖了我们在工作中遇到的其他重要问题（或看到出错的问题）。我们的意图是让这份工作成为一份活的文档，随着我们的信念改变而成长和演变。例如，关于调试和缓解训练失败的材料，我们两年前是不可能写出来的，因为它基于最近的结果和正在进行的调查实验。不可避免地，我们的一些建议需要根据新的结果和改进的工作流程进行更新。
 
-## Guide for starting a new project
+我们不知道最优的深度学习配方，但在社区开始写下并讨论不同的程序之前，我们无法希望找到它。为此，我们鼓励发现我们建议有问题的读者提出替代建议，并提供令人信服的证据，以便我们可以更新手册。 我们还希望看到一些替代的指南和玩书，它们可能会有不同的建议，这样我们就可以作为一个社区朝着最佳实践努力。最后，任何用🤖标记的段落都是我们需要进行更多研究的地方。只有在尝试编写这个指南之后，我们才完全清楚深度学习实践者工作流中存在多少有趣且被忽视的研究问题。
+
+## 如何开始一个深度学习项目
 
 Many of the decisions we make over the course of tuning can be made once at the
 beginning of a project and only occasionally revisited when circumstances
