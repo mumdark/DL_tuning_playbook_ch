@@ -74,47 +74,24 @@
 
 ***关键总结:***  ：在启动新项目时，尽量使用已经发表经过验证的模型。
 
--   选择一个成熟且常用的模型架构先让它跑起来，后面再慢慢构建自定义模型。
--   模型架构通常包含各种超参数，这些超参数决定了模型的大小和其他细节（例如层数、层宽以及激活函数的类型）。① 选择架构实际上意味着在可能的模型中选择一个表现最好的，所以模型的选择也可以作为一个超参数。② 参数的选择可以参见[3.4.选择初始的参数配置](#3-4-选择初始的参数配置)与 [4.如何科学的提高模型性能](#4-如何科学的提高模型性能)两个部分。
--   When possible, try to find a paper that tackles something as close as
-    possible to the problem at hand and reproduce that model as a starting
-    point.
+-   1.选择一个成熟且常用的模型架构先让它跑起来，后面再慢慢构建自定义模型。
+
+-   2.模型架构通常包含各种超参数，这些超参数决定了模型的大小和其他细节（例如层数、层宽以及激活函数的类型）。① 选择架构实际上意味着在可能的模型中选择一个表现最好的，所以模型的选择也可以作为一个超参数。② 参数的选择可以参见[3.4.选择初始的参数配置](#3-4-选择初始的参数配置)与 [4.如何科学的提高模型性能](#4-如何科学的提高模型性能)两个部分。
+
+-   3.尽量找到一篇论文，其中解决的问题接近手头的问题，并以该模型作为起点进行复现。
 
 ### 3-2 选择优化器
 
-***Summary:*** *Start with the most popular optimizer for the type of problem at
-hand.*
+***关键总结:*** 使用目前最流行的优化器*
 
--   No optimizer is the "best" across all types of machine learning problems and
-    model architectures. Even just
-    [comparing the performance of optimizers is a difficult task](https://arxiv.org/abs/1910.05446).
+-   1.没有优化器适用于所有类型的机器学习问题和模型架构，
+    [甚至比较优化器的性能本身都是一项困难的任务](https://arxiv.org/abs/1910.05446).
     🤖
--   We recommend sticking with well-established, popular optimizers, especially
-    when starting a new project.
-    -   Ideally, choose the most popular optimizer used for the same type of
-        problem.
--   Be prepared to give attention to **\*****all****\*** hyperparameters of the
-    chosen optimizer.
-    -   Optimizers with more hyperparameters may require more tuning effort to
-        find the best configuration.
-    -   This is particularly relevant in the beginning stages of a project when
-        we are trying to find the best values of various other hyperparameters
-        (e.g. architecture hyperparameters) while treating optimizer
-        hyperparameters as
-        [nuisance parameters](#identifying-scientific-nuisance-and-fixed-hyperparameters).
-    -   It may be preferable to start with a simpler optimizer (e.g. SGD with
-        fixed momentum or Adam with fixed $\epsilon$, $\beta_{1}$, and
-        $\beta_{2}$) in the initial stages of the project and switch to a more
-        general optimizer later.
--   Well-established optimizers that we like include (but are not limited to):
-    -   [SGD with momentum](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms)
-        (we like the Nesterov variant)
-    -   [Adam and NAdam](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms),
-        which are more general than SGD with momentum. Note that Adam has 4
-        tunable hyperparameters
-        [and they can all matter](https://arxiv.org/abs/1910.05446)!
-        -   See
-            [How should Adam's hyperparameters be tuned?](#how-should-adams-hyperparameters-be-tuned)
+-   2.我们建议使用经过验证、流行的优化器，尤其是在启动新的深度学习项目时。理想情况下，选择同一类型问题中最常用的优化器。
+-   3.准备好关注所选优化器的**所有**超参数。以下几点是给一个新手的提醒：① 具有更多超参数的优化器可能需要更多的调优努力以找到最佳配置；② 在项目初期，当我们试图找到各种其他超参数（例如架构超参数）的最佳值时，请将优化器超参数视为[无关参数](#识别科学的/无关的/固定的超参数).；③ 在项目初期，可以使用一个相对更简单的优化器，例如具有固定参数设置的 SGD 或 Adam，之后再切换到更适用的优化器。
+-   4.目前完善且受我们喜欢的优化器有:
+    -   ① [SGD + momentum](#所有流行的优化算法的更新规则是什么)，我们喜欢 Nesterov 变体
+    -   ② [Adam 与 NAdam](#所有流行的优化算法的更新规则是什么)，两种方法比具有动量的 SGD 更通用。请注意，Adam 有 4 个可调超参数，[它们都可能很重要](https://arxiv.org/abs/1910.05446)!。可以参考以下内容调节Adam的超参数：[How should Adam's hyperparameters be tuned?](#how-should-adams-hyperparameters-be-tuned)
 
 ### 3-3 选择批次大小
 
@@ -471,7 +448,7 @@ compare different values of the scientific hyperparameters while optimizing over
 the nuisance hyperparameters. Choose the search space of nuisance
 hyperparameters to balance resource costs with scientific value.*
 
-#### Identifying scientific, nuisance, and fixed hyperparameters
+#### 识别科学的/无关的/固定的超参数
 
 <details><summary><em>[Click to expand]</em></summary>
 
@@ -1957,7 +1934,7 @@ scale).">
 
 </details>
 
-### What are the update rules for all the popular optimization algorithms?
+### 所有流行的优化算法的更新规则是什么?
 
 <details><summary><em>[Click to expand]</em></summary>
 
