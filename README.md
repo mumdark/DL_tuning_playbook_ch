@@ -2,7 +2,7 @@
 
 # Deep Learning Tuning Playbook----深度学习调参手册
 
-*This is not an officially supported Google product.*
+*尽管作者来自谷歌研究团队，但以下内容并不是该团队的正式文章*
 
 **Varun Godbole<sup>&dagger;</sup>, George E. Dahl<sup>&dagger;</sup>, Justin Gilmer<sup>&dagger;</sup>, Christopher J. Shallue<sup>&Dagger;</sup>, Zachary Nado<sup>&dagger;</sup>**
 
