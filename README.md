@@ -82,7 +82,7 @@
 
 ### 3-2 选择优化器
 
-***关键总结:*** 使用目前最流行的优化器*
+***关键总结:*** 使用目前最流行的优化器 (optimizer)
 
 -   1.没有优化器适用于所有类型的机器学习问题和模型架构，
     [甚至比较优化器的性能本身都是一项困难的任务](https://arxiv.org/abs/1910.05446).
@@ -95,32 +95,14 @@
 
 ### 3-3 选择批次大小
 
-***Summary:*** *The batch size governs the training speed and shouldn't be used
-to directly tune the validation set performance. Often, the ideal batch size
-will be the largest batch size supported by the available hardware.*
+***关键总结:***  批量大小 (batch size) 只是决定了训练速度，而不应直接用于调整验证集性能。通常，**理想的批量大小**应当是可用硬件支持的最大批量大小。
 
--   The batch size is a key factor in determining the *training time* and
-    *computing resource consumption*.
--   Increasing the batch size will often reduce the training time. This can be
-    highly beneficial because it, e.g.:
-    -   Allows hyperparameters to be tuned more thoroughly within a fixed time
-        interval, potentially resulting in a better final model.
-    -   Reduces the latency of the development cycle, allowing new ideas to be
-        tested more frequently.
--   Increasing the batch size may either decrease, increase, or not change the
-    resource consumption.
--   The batch size should *not be* treated as a tunable hyperparameter for
-    validation set performance.
-    -   As long as all hyperparameters are well-tuned (especially the learning
-        rate and regularization hyperparameters) and the number of training
-        steps is sufficient, the same final performance should be attainable
-        using any batch size (see
-        [Shallue et al. 2018](https://arxiv.org/abs/1811.03600)).
-    -   Please see [Why shouldn't the batch size be tuned to directly improve
-        validation set
-        performance?](#why-shouldnt-the-batch-size-be-tuned-to-directly-improve-validation-set-performance)
+-   批量大小是确定训练时间和计算资源消耗的关键因素。
+-   增加批量大小通常会减少训练时间。这可能非常有益，因为：① 允许在固定的时间间隔内更彻底地调整超参数，可能会得到更好的最终模型；② 减少开发周期的延迟，允许更频繁地测试新想法。
+-   T批量大小**不应被**视为用于验证集性能的可调超参数。只要所有超参数（尤其是学习率和正则化超参数）调优得当，并且训练步数足够多，使用任何批量大小都应该能达到相同的最终性能。 (参见
+  [ Shallue 等 2018](https://arxiv.org/abs/1811.03600))。此外，可以参考：[为什么不应将批量大小调整以直接提高验证集性能?](#所有流行的优化算法的更新规则是什么)
 
-#### Determining the feasible batch sizes and estimating training throughput
+#### 确定可行的批次大小并估算训练吞吐量
 
 
 <details><summary><em>[Click to expand]</em></summary>
