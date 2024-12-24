@@ -729,7 +729,7 @@ hyperparameters to balance resource costs with scientific value.*
 
 </details>
 
-### 4-4 合理设计每一次训练
+### 分析实验结果
 
 ***Summary:*** *In addition to trying to achieve the original scientific goal of
 each group of experiments, go through a checklist of additional questions and,
