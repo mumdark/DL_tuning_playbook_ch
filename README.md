@@ -1,36 +1,36 @@
-# Deep Learning Tuning Playbook
+> Deep Learning Tuning Playbook 中文版
+
+# Deep Learning Tuning Playbook----深度学习调参手册
 
 *This is not an officially supported Google product.*
 
 **Varun Godbole<sup>&dagger;</sup>, George E. Dahl<sup>&dagger;</sup>, Justin Gilmer<sup>&dagger;</sup>, Christopher J. Shallue<sup>&Dagger;</sup>, Zachary Nado<sup>&dagger;</sup>**
 
 
-&dagger; Google Research, Brain Team
+&dagger; Google 研究院, Brain 团队
 
-&Dagger; Harvard University
+&Dagger; 哈佛大学
 
 ## Table of Contents
 
--   [Who is this document for?](#who-is-this-document-for)
--   [Why a tuning playbook?](#why-a-tuning-playbook)
--   [Guide for starting a new project](#guide-for-starting-a-new-project)
-    -   [Choosing the model architecture](#choosing-the-model-architecture)
-    -   [Choosing the optimizer](#choosing-the-optimizer)
-    -   [Choosing the batch size](#choosing-the-batch-size)
-    -   [Choosing the initial configuration](#choosing-the-initial-configuration)
--   [A scientific approach to improving model performance](#a-scientific-approach-to-improving-model-performance)
-    -   [The incremental tuning strategy](#the-incremental-tuning-strategy)
-    -   [Exploration vs exploitation](#exploration-vs-exploitation)
-    -   [Choosing the goal for the next round of experiments](#choosing-the-goal-for-the-next-round-of-experiments)
-    -   [Designing the next round of experiments](#Designing-the-next-round-of-experiments)
-    -   [Determining whether to adopt a training pipeline change or
-        hyperparameter
-        configuration](#Determining-whether-to-adopt-a-training-pipeline-change-or-hyperparameter-configuration)
-    -   [After exploration concludes](#After-exploration-concludes)
--   [Determining the number of steps for each training run](#Determining-the-number-of-steps-for-each-training-run)
-    -   [Deciding how long to train when training is not compute-bound](#Deciding-how-long-to-train-when-training-is-not-compute-bound)
-    -   [Deciding how long to train when training is compute-bound](#Deciding-how-long-to-train-when-training-is-compute-bound)
--   [Additional guidance for the training pipeline](#Additional-guidance-for-the-training-pipeline)
+-   [一、这份文件为谁而写？](#who-is-this-document-for)
+-   [二、为什么需要这本书?](#why-a-tuning-playbook)
+-   [三、如何开始一个深度学习项目](#guide-for-starting-a-new-project)
+    -   [3.1 选择模型架构](#choosing-the-model-architecture)
+    -   [3.2 选择优化器](#choosing-the-optimizer)
+    -   [3.3 选择批次大小](#choosing-the-batch-size)
+    -   [3.4 选择初始的参数配置](#choosing-the-initial-configuration)
+-   [四、如何科学的提高模型性能？](#a-scientific-approach-to-improving-model-performance)
+    -   [4.1 渐进式微调策略](#the-incremental-tuning-strategy)
+    -   [4.2 理解问题后再去开发](#exploration-vs-exploitation)
+    -   [4.3 为新的一次训练设定目标](#choosing-the-goal-for-the-next-round-of-experiments)
+    -   [4.4 合理设计每一次训练](#Designing-the-next-round-of-experiments)
+    -   [4.5 根据上一次训练结果修改模型参数](#Determining-whether-to-adopt-a-training-pipeline-change-or-hyperparameter-configuration)
+    -   [4.6 初步探索后的工作](#After-exploration-concludes)
+-   [五、确定每次训练运行的步数](#Determining-the-number-of-steps-for-each-training-run)
+    -   [非计算受限(compute-bound)的训练时长](#Deciding-how-long-to-train-when-training-is-not-compute-bound)
+    -   [计算受限的训练时长](#Deciding-how-long-to-train-when-training-is-compute-bound)
+-   [额外的训练指导](#Additional-guidance-for-the-training-pipeline)
     -   [Optimizing the input pipeline](#Optimizing-the-input-pipeline)
     -   [Evaluating model performance](#evaluating-model-performance)
     -   [Saving checkpoints and retrospectively selecting the best checkpoint](#Saving-checkpoints-and-retrospectively-selecting-the-best-checkpoint)
