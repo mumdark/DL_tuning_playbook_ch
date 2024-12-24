@@ -80,7 +80,7 @@
     possible to the problem at hand and reproduce that model as a starting
     point.
 
-### Choosing the optimizer
+### 3-2 选择优化器
 
 ***Summary:*** *Start with the most popular optimizer for the type of problem at
 hand.*
@@ -116,7 +116,7 @@ hand.*
         -   See
             [How should Adam's hyperparameters be tuned?](#how-should-adams-hyperparameters-be-tuned)
 
-### Choosing the batch size
+### 3-3 选择批次大小
 
 ***Summary:*** *The batch size governs the training speed and shouldn't be used
 to directly tune the validation set performance. Often, the ideal batch size
@@ -319,7 +319,7 @@ will be the largest batch size supported by the available hardware.*
 
 </details>
 
-### Choosing the initial configuration
+### 3-4 选择初始的参数配置
 
 -   Before beginning hyperparameter tuning we must determine the starting point.
     This includes specifying (1) the model configuration (e.g. number of
@@ -354,7 +354,7 @@ will be the largest batch size supported by the available hardware.*
         initially, it might be hard to change it down the road, e.g. once the
         learning rate schedule is tuned for that number of steps.
 
-## A scientific approach to improving model performance
+## 4-如何科学的提高模型性能
 
 For the purposes of this document, the ultimate goal of machine learning
 development is to maximize the utility of the deployed model. Even though many
@@ -369,7 +369,7 @@ Our guidance below makes the following assumptions:
 -   There are enough computational resources available to conduct meaningful
     tuning experiments and run at least several training jobs in parallel.
 
-### The incremental tuning strategy
+### 4-1 渐进式微调策略
 
 ***Summary:*** *Start with a simple configuration and incrementally make
 improvements while building up insight into the problem. Make sure that any
@@ -414,7 +414,7 @@ following four steps:
 The remainder of this section will consider this strategy in much greater
 detail.
 
-### Exploration vs exploitation
+### 4-2 理解问题后再去开发
 
 ***Summary:*** *Most of the time, our primary goal is to gain insight into the
 problem.*
@@ -446,7 +446,7 @@ problem.*
     validation error even if the experiments aren't maximally informative about
     the structure of the tuning problem.
 
-### Choosing the goal for the next round of experiments
+### 4-3 为新的一次训练设定目标
 
 ***Summary:*** *Each round of experiments should have a clear goal and be
 sufficiently narrow in scope that the experiments can actually make progress
@@ -463,7 +463,7 @@ towards the goal.*
         activation function)
     -   Greedily minimize validation error.
 
-### Designing the next round of experiments
+### 4-4 合理设计每一次训练
 
 ***Summary:*** *Identify which hyperparameters are scientific, nuisance, and
 fixed hyperparameters for the experimental goal. Create a sequence of studies to
@@ -729,7 +729,7 @@ hyperparameters to balance resource costs with scientific value.*
 
 </details>
 
-### Extracting insight from experimental results
+### 4-4 合理设计每一次训练
 
 ***Summary:*** *In addition to trying to achieve the original scientific goal of
 each group of experiments, go through a checklist of additional questions and,
@@ -986,7 +986,7 @@ trained on ImageNet.">
 
 </details>
 
-### Determining whether to adopt a training pipeline change or hyperparameter configuration
+### 4-5 根据上一次训练结果修改模型参数
 
 ***Summary:*** *When deciding whether to make a change to our model or training
 procedure or adopt a new hyperparameter configuration going forward, we need to
@@ -1040,7 +1040,7 @@ be aware of the different sources of variation in our results.*
     -   However, we should only adopt changes that produce improvements that
         outweigh any complexity they add.
 
-### After exploration concludes
+### 4-6 初步探索后的工作
 
 ***Summary:*** *Bayesian optimization tools are a compelling option once we’re
 done exploring for good search spaces and have decided what hyperparameters even
