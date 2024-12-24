@@ -16,7 +16,7 @@
 -   [一、这份文件为谁而写？](#这份文件为谁而写)
 -   [二、为什么需要这本书?](#为什么需要这本书)
 -   [三、如何开始一个深度学习项目](#如何开始一个深度学习项目)
-    -   [3.1 选择模型架构](#choosing-the-model-architecture)
+    -   [3.1 选择模型架构](#选择模型架构)
     -   [3.2 选择优化器](#choosing-the-optimizer)
     -   [3.3 选择批次大小](#choosing-the-batch-size)
     -   [3.4 选择初始的参数配置](#choosing-the-initial-configuration)
@@ -52,7 +52,7 @@
 
 ## 为什么需要这本书
 
-目前，在实际中让深度神经网络表现良好需要大量的工作和尝试。**糟糕的是，人们获得良好结果的实际方法很少被记录下来**。论文往往会忽略导致最终结果的过程，以便呈现一个更干净的故事，而处理商业问题的机器学习工程师通常没有时间退一步总结他们的方法。不仅如此，现有的教科书往往很少提供实用指导，而是优先考虑基本原理。在准备编写这份文档时，我们找不到任何全面解释如何通过深度学习获得良好结果的尝试。相反，我们发现了**①**一些博客文章和社交媒体上的零散建议；**②**部分研究论文附录中透露的一些技巧；**③**偶尔有关于一个特定项目或管道的案例研究；以及**④**大量的困惑。**深度学习专家和实践技能较低的初学者之间存在着巨大的差距**（尽管他们看上去使用的是类似的方法架构）。 与此同时，这些专家也承认他们所做的某些工作可能并不完全站得住脚。随着深度学习的成熟并在世界范围内产生更大的影响，**社区需要更多的资源，包括所有可能对获得良好结果至关重要的实用细节**。
+目前，在实际中让深度神经网络表现良好需要大量的工作和尝试。**糟糕的是，人们获得良好结果的实际方法很少被记录下来**。论文往往会忽略导致最终结果的过程，以便呈现一个更干净的故事，而处理商业问题的机器学习工程师通常没有时间退一步总结他们的方法。不仅如此，现有的教科书往往很少提供实用指导，而是优先考虑基本原理。在准备编写这份文档时，我们找不到任何全面解释如何通过深度学习获得良好结果的尝试。相反，我们发现了**①** 一些博客文章和社交媒体上的零散建议；**②** 部分研究论文附录中透露的一些技巧；**③** 偶尔有关于一个特定项目或管道的案例研究；以及**④** 大量的困惑。**深度学习专家和实践技能较低的初学者之间存在着巨大的差距**（尽管他们看上去使用的是类似的方法架构）。 与此同时，这些专家也承认他们所做的某些工作可能并不完全站得住脚。随着深度学习的成熟并在世界范围内产生更大的影响，**社区需要更多的资源，包括所有可能对获得良好结果至关重要的实用细节**。
 
 我们是一个由五名研究人员和工程师组成的团队，多年来一直在深度学习领域工作，有些人甚至可以追溯到 2006 年。我们已经将深度学习应用于从语音识别到天文学等各种问题，并在过程中学到了很多。这份文件源于我们自己训练神经网络、教授新的机器学习工程师以及指导同事进行深度学习实践的经验。尽管看到深度学习从少数实验室采用的一种机器学习方法，发展成为一种被数十亿人使用的科技产品，这让我们感到非常欣慰，但深度学习作为一门工程学科仍然处于初级阶段，我们希望这份文件能够鼓励其他人帮助系统化该领域的实验规范。
 
@@ -62,26 +62,17 @@
 
 ## 如何开始一个深度学习项目
 
-Many of the decisions we make over the course of tuning can be made once at the
-beginning of a project and only occasionally revisited when circumstances
-change.
+我们在参数调整过程中做出的许多决策可以在项目开始时一次性做出，并且只有在情况发生变化时才重新审视。
 
-Our guidance below makes the following assumptions:
+首先，我们的假设如下：
 
--   Enough of the essential work of problem formulation, data cleaning, etc. has
-    already been done that spending time on the model architecture and training
-    configuration makes sense.
--   There is already a pipeline set up that does training and evaluation, and it
-    is easy to execute training and prediction jobs for various models of
-    interest.
--   The appropriate metrics have been selected and implemented. These should be
-    as representative as possible of what would be measured in the deployed
-    environment.
+-   足够的基本工作，如问题表述、数据清洗等已经完成，因此花时间在模型架构和训练配置上是有意义的。
+-   已经有了一条管道来进行训练和评估，对于各种感兴趣模型的训练和预测任务也很容易执行。
+-   适当的指标已经选择并实施了。这些指标应该尽可能地代表在模型中将要测量的内容。
 
-### Choosing the model architecture
+### 选择模型架构
 
-***Summary:*** *When starting a new project, try to reuse a model that already
-works.*
+***关键总结:***  ：在启动新项目时，尽量使用已经发表经过验证的模型。
 
 -   Choose a well established, commonly used model architecture to get working
     first. It is always possible to build a custom model later.
