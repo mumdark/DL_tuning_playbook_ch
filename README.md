@@ -17,26 +17,26 @@
 -   [二、为什么需要这本书?](#2-为什么需要这本书)
 -   [三、如何开始一个深度学习项目](#3-如何开始一个深度学习项目)
     -   [3-1 选择模型架构](#3-1-选择模型架构)
-    -   [3.2 选择优化器](#choosing-the-optimizer)
-    -   [3.3 选择批次大小](#choosing-the-batch-size)
-    -   [3.4 选择初始的参数配置](#choosing-the-initial-configuration)
--   [四、如何科学的提高模型性能？](#a-scientific-approach-to-improving-model-performance)
-    -   [4.1 渐进式微调策略](#the-incremental-tuning-strategy)
-    -   [4.2 理解问题后再去开发](#exploration-vs-exploitation)
-    -   [4.3 为新的一次训练设定目标](#choosing-the-goal-for-the-next-round-of-experiments)
-    -   [4.4 合理设计每一次训练](#Designing-the-next-round-of-experiments)
-    -   [4.5 根据上一次训练结果修改模型参数](#Determining-whether-to-adopt-a-training-pipeline-change-or-hyperparameter-configuration)
-    -   [4.6 初步探索后的工作](#After-exploration-concludes)
--   [五、确定每次训练运行的步数](#Determining-the-number-of-steps-for-each-training-run)
-    -   [非计算受限(compute-bound)的训练时长](#Deciding-how-long-to-train-when-training-is-not-compute-bound)
-    -   [计算受限的训练时长](#Deciding-how-long-to-train-when-training-is-compute-bound)
--   [六、额外的训练指导](#Additional-guidance-for-the-training-pipeline)
-    -   [6.1数据输入的优化](#Optimizing-the-input-pipeline)
-    -   [6.2 评估模型性能](#evaluating-model-performance)
-    -   [6.3 在训练过程中保存检查点](#Saving-checkpoints-and-retrospectively-selecting-the-best-checkpoint)
-    -   [6.4 设置实验跟踪](#Setting-up-experiment-tracking)
-    -   [6.5 批量归一化实现细节](#Batch-normalization-implementation-details)
-    -   [6.6 多主机训练的注意事项](#Considerations-for-multi-host-pipelines)
+    -   [3.2 选择优化器](#3-2-选择优化器)
+    -   [3.3 选择批次大小](#3-3-选择批次大小)
+    -   [3.4 选择初始的参数配置](#3-4-选择初始的参数配置)
+-   [四、如何科学的提高模型性能？](#4-如何科学的提高模型性能)
+    -   [4.1 渐进式微调策略](#4-1-渐进式微调策略)
+    -   [4.2 理解问题后再去开发](#4-2-理解问题后再去开发)
+    -   [4.3 为新的一次训练设定目标](#4-3-为新的一次训练设定目标)
+    -   [4.4 合理设计每一次训练](#4-4-合理设计每一次训练)
+    -   [4.5 根据上一次训练结果修改模型参数](#4-5-根据上一次训练结果修改模型参数)
+    -   [4.6 初步探索后的工作](#4-6-初步探索后的工作)
+-   [五、确定每次训练运行的步数](#5-确定每次训练运行的步数)
+    -   [5.1 非计算受限的训练时长](#5-1-非计算受限的训练时长)
+    -   [5.2 计算受限的训练时长](#5-2-计算受限的训练时长)
+-   [六、额外的训练指导](#6-额外的训练指导)
+    -   [6.1数据输入的优化](#6-1-数据输入的优化)
+    -   [6.2 评估模型性能](#6-2-评估模型性能)
+    -   [6.3 在训练过程中保存检查点](#6-3-在训练过程中保存检查点)
+    -   [6.4 设置实验跟踪](#6-4-设置实验跟踪)
+    -   [6.5 批量归一化实现细节](#6-5-批量归一化实现细节)
+    -   [6.6 多主机训练的注意事项](#6-6-多主机训练的注意事项)
 -   [其它常见问题](#faqs)
 -   [致谢](#acknowledgments)
 -   [引用](#citing)
@@ -74,17 +74,8 @@
 
 ***关键总结:***  ：在启动新项目时，尽量使用已经发表经过验证的模型。
 
--   Choose a well established, commonly used model architecture to get working
-    first. It is always possible to build a custom model later.
--   Model architectures typically have various hyperparameters that determine
-    the model's size and other details (e.g. number of layers, layer width, type
-    of activation function).
-    -   Thus, choosing the architecture really means choosing a family of
-        different models (one for each setting of the model hyperparameters).
-    -   We will consider the problem of choosing the model hyperparameters in
-        [Choosing the initial configuration](#choosing-the-initial-configuration)
-        and
-        [A scientific approach to improving model performance](#a-scientific-approach-to-improving-model-performance).
+-   选择一个成熟且常用的模型架构先让它跑起来，后面再慢慢构建自定义模型。
+-   模型架构通常包含各种超参数，这些超参数决定了模型的大小和其他细节（例如层数、层宽以及激活函数的类型）。① 选择架构实际上意味着在可能的模型中选择一个表现最好的，所以模型的选择也可以作为一个超参数。② 参数的选择可以参见[3.4.选择初始的参数配置](#3-4-选择初始的参数配置)与 [4.如何科学的提高模型性能](#4-如何科学的提高模型性能)两个部分。
 -   When possible, try to find a paper that tackles something as close as
     possible to the problem at hand and reproduce that model as a starting
     point.
