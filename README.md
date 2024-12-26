@@ -102,55 +102,35 @@
 -   T批量大小**不应被**视为用于验证集性能的可调超参数。只要所有超参数（尤其是学习率和正则化超参数）调优得当，并且训练步数足够多，使用任何批量大小都应该能达到相同的最终性能。 (参见
   [ Shallue 等 2018](https://arxiv.org/abs/1811.03600))。此外，可以参考：[为什么不应将批量大小调整以直接提高验证集性能?](#所有流行的优化算法的更新规则是什么)
 
-#### 确定可行的批次大小并估算训练吞吐量
+#### 如何确定可行的批次大小并估算训练吞吐量
 
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
--   For a given model and optimizer, there will typically be a range of batch
-    sizes supported by the available hardware. The limiting factor is usually
-    accelerator memory.
--   Unfortunately, it can be difficult to calculate which batch sizes will fit
-    in memory without running, or at least compiling, the full training program.
--   The easiest solution is usually to run training jobs at different batch
-    sizes (e.g. increasing powers of 2) for a small number of steps until one of
-    the jobs exceeds the available memory.
--   For each batch size, we should train for long enough to get a reliable
-    estimate of the *training throughput*
+-   ① 对于给定的模型和优化器，批量大小的限制因素通常是gpu内存。
+-   ② 不幸的是，在不运行或至少编译完整训练程序的情况下，很难计算出哪些批次大小对内存来说是适合的。
+-   ③ 最容易的解决方案通常是使用不同的批量大小运行训练任务（例如，2 的幂次方）进行少量测试，直到其中一个批次大小设置超出可用内存。
+-   ④ 对于每个批次大小，我们应该训练足够长的时间以获得可靠的 *训练吞吐量(training throughput)* 估计
 
-<p align="center">training throughput = (# examples processed per second)</p>
+<p align="center">训练吞吐量 = (# 每秒处理的样本数)</p>
 
-<p align="center">or, equivalently, the <em>time per step</em>.</p>
+<p align="center">或等价地说，<em>每步的时间</em>.</p>
 
-<p align="center">time per step = (batch size) / (training throughput)</p>
+<p align="center">每步的时间 = (批次大小batch size) / (训练吞吐量training throughput)</p>
 
--   When the accelerators aren't yet saturated, if the batch size doubles, the
-    training throughput should also double (or at least nearly double).
-    Equivalently, the time per step should be constant (or at least nearly
-    constant) as the batch size increases.
--   If this is not the case then the training pipeline has a bottleneck such as
-    I/O or synchronization between compute nodes. This may be worth diagnosing
-    and correcting before proceeding.
--   If the training throughput increases only up to some maximum batch size,
-    then we should only consider batch sizes up to that maximum batch size, even
-    if a larger batch size is supported by the hardware.
-    -   All benefits of using a larger batch size assume the training throughput
-        increases. If it doesn't, fix the bottleneck or use the smaller batch
-        size.
-    -   **Gradient accumulation** simulates a larger batch size than the
-        hardware can support and therefore does not provide any throughput
-        benefits. It should generally be avoided in applied work.
--   These steps may need to be repeated every time the model or optimizer is
-    changed (e.g. a different model architecture may allow a larger batch size
-    to fit in memory).
+-   当gpu尚未饱和时，如果批量大小翻倍，训练 throughput 应该也会翻倍（或者至少接近翻倍）。 同样的，随着批量大小增加，每步的时间应该保持不变（或者至少接近不变）。如果并不是这样的，那么训练管道可能存在瓶颈，比如 I/O 或计算节点之间的同步。这在继续训练之前可能**值得**诊断和修正。
+- ⑤ 如果训练吞吐量只增加到某个批次大小为止，那么即使硬件支持更大的批次大小，我们**也应该**只考虑那个批次大小之前的批次大小。
+    -  ⑤-① 使用更大的批量大小的所有优势**都应当**假设训练吞吐量会增加。如果不会增加，就要解决瓶颈或使用较小的批量大小。
+    -  ⑤-② **梯度累积(Gradient accumulation)** 梯度累积虽然可以模拟更大的批量大小，但它通常并不提供计算吞吐量的提升，因此在实际应用中应该尽量避免使用。提示：梯度积累将小批量数据（micro-batches）在多次前向传播中累积梯度。在指定次数的累积后才执行一次参数更新。这样，相当于用更大的批量大小来更新模型，但无需一次性加载所有数据到显存中。
+上述步骤可能需要在每次更改模型或优化器时重复进行（例如，不同的模型架构可能允许使用更大的批次大小以适应内存）。
 
 </details>
 
 #### Choosing the batch size to minimize training time
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -200,7 +180,7 @@
 
 #### Choosing the batch size to minimize resource consumption
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -248,7 +228,7 @@
 
 #### Changing the batch size requires re-tuning most hyperparameters
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -266,7 +246,7 @@
 
 #### How batch norm interacts with the batch size
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -432,7 +412,7 @@ hyperparameters to balance resource costs with scientific value.*
 
 #### 识别科学的/无关的/固定的超参数
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -580,7 +560,7 @@ hyperparameters to balance resource costs with scientific value.*
 
 #### Creating a set of studies
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -643,7 +623,7 @@ hyperparameters to balance resource costs with scientific value.*
 
 #### Striking a balance between informative and affordable experiments
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -734,7 +714,7 @@ if issues are discovered, revise the experiments and rerun them.*
 
 #### Identifying bad search space boundaries
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -773,7 +753,7 @@ if issues are discovered, revise the experiments and rerun them.*
 
 #### Not sampling enough points in the search space
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -791,7 +771,7 @@ if issues are discovered, revise the experiments and rerun them.*
 
 #### Examining the training curves
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -886,7 +866,7 @@ failure modes and can help us prioritize what actions to take next.*
 
 #### Detecting whether a change is useful with isolation plots
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -926,7 +906,7 @@ trained on ImageNet.">
 
 #### Automate generically useful plots
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1118,7 +1098,7 @@ should be tuned at all.*
 
 #### Algorithm for picking an initial candidate for max_train_steps using a learning rate sweep
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1180,7 +1160,7 @@ should be tuned at all.*
 
 #### Round 1
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1229,7 +1209,7 @@ should be tuned at all.*
 
 #### Round 2
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1295,7 +1275,7 @@ evaluations at regular step intervals, not regular time intervals.*
 
 #### Evaluation settings
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1323,7 +1303,7 @@ evaluations at regular step intervals, not regular time intervals.*
 
 #### Setting up periodic evaluations
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1364,7 +1344,7 @@ evaluations at regular step intervals, not regular time intervals.*
 
 #### Choosing a sample for periodic evaluation
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1479,7 +1459,7 @@ multi-host training can make it very easy to introduce bugs!*
 
 ### What is the best learning rate decay schedule family?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
@@ -1495,7 +1475,7 @@ multi-host training can make it very easy to introduce bugs!*
 
 ### Which learning rate decay should I use as a default?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 -   Our preference is either linear decay or cosine decay, and a bunch of other
@@ -1505,7 +1485,7 @@ multi-host training can make it very easy to introduce bugs!*
 
 ### Why do some papers have complicated learning rate schedules?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 -   It’s not uncommon to see papers with complicated piecewise learning rate
@@ -1535,7 +1515,7 @@ multi-host training can make it very easy to introduce bugs!*
 
 ### How should Adam’s hyperparameters be tuned?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 -   As discussed above, making general statements about search spaces and how
@@ -1553,7 +1533,7 @@ multi-host training can make it very easy to introduce bugs!*
 
 ### Why use quasi-random search instead of more sophisticated black box optimization algorithms during the exploration phase of tuning?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 -   Quasi-random search (based on
     [low-discrepancy sequences](https://en.wikipedia.org/wiki/Low-discrepancy_sequence))
@@ -1642,7 +1622,7 @@ multi-host training can make it very easy to introduce bugs!*
 
 ### Where can I find an implementation of quasi-random search?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 -   [Open-Source Vizier](https://github.com/google/vizier) has an [implementation
@@ -1663,7 +1643,7 @@ multi-host training can make it very easy to introduce bugs!*
 
 ### How many trials are needed to get good results with quasi-random search?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 <p align="center">
@@ -1690,7 +1670,7 @@ Box plots of the best performances for each trial budget are plotted above.
 
 ### How can optimization failures be debugged and mitigated?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 
@@ -1877,7 +1857,7 @@ scale).">
 
 ### Why do you call the learning rate and other optimization parameters hyperparameters? They are not parameters of any prior distribution.
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 -   It is true that the term "hyperparameter" has a precise
@@ -1904,7 +1884,7 @@ scale).">
 
 ### Why shouldn't the batch size be tuned to directly improve validation set performance?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
 -   Changing the batch size *without changing any other details of the training pipeline* will often affect the validation set performance.
@@ -1918,7 +1898,7 @@ scale).">
 
 ### 所有流行的优化算法的更新规则是什么?
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 
 <br>
 
