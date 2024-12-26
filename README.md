@@ -1,4 +1,4 @@
-> Deep Learning Tuning Playbook 中文版
+> Deep Learning Tuning Playbook 中文版 (添加了必要的补充说明)
 
 # Deep Learning Tuning Playbook----深度学习调参手册
 
