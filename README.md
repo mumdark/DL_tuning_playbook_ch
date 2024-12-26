@@ -102,7 +102,7 @@
 -   T批量大小**不应被**视为用于验证集性能的可调超参数。只要所有超参数（尤其是学习率和正则化超参数）调优得当，并且训练步数足够多，使用任何批量大小都应该能达到相同的最终性能。 (参见
   [ Shallue 等 2018](https://arxiv.org/abs/1811.03600))。此外，可以参考：[为什么不应将批量大小调整以直接提高验证集性能?](#所有流行的优化算法的更新规则是什么)
 
-#### 如何确定可行的批次大小并估算训练吞吐量
+#### tip1: 确定可行的批次大小并估算训练吞吐量
 
 
 <details><summary><em>[点击展开]</em></summary>
@@ -120,113 +120,66 @@
 
 <p align="center">每步的时间 = (批次大小batch size) / (训练吞吐量training throughput)</p>
 
--   当gpu尚未饱和时，如果批量大小翻倍，训练 throughput 应该也会翻倍（或者至少接近翻倍）。 同样的，随着批量大小增加，每步的时间应该保持不变（或者至少接近不变）。如果并不是这样的，那么训练管道可能存在瓶颈，比如 I/O 或计算节点之间的同步。这在继续训练之前可能**值得**诊断和修正。
-- ⑤ 如果训练吞吐量只增加到某个批次大小为止，那么即使硬件支持更大的批次大小，我们**也应该**只考虑那个批次大小之前的批次大小。
-    -  ⑤-① 使用更大的批量大小的所有优势**都应当**假设训练吞吐量会增加。如果不会增加，就要解决瓶颈或使用较小的批量大小。
-    -  ⑤-② **梯度累积(Gradient accumulation)** 梯度累积虽然可以模拟更大的批量大小，但它通常并不提供计算吞吐量的提升，因此在实际应用中应该尽量避免使用。提示：梯度积累将小批量数据（micro-batches）在多次前向传播中累积梯度。在指定次数的累积后才执行一次参数更新。这样，相当于用更大的批量大小来更新模型，但无需一次性加载所有数据到显存中。
+- ⑤ 当gpu尚未饱和时，如果批量大小翻倍，训练 throughput 应该也会翻倍（或者至少接近翻倍）。 同样的，随着批量大小增加，每步的时间应该保持不变（或者至少接近不变）。如果并不是这样的，那么训练管道可能存在瓶颈，比如 I/O 或计算节点之间的同步。这在继续训练之前可能**值得**诊断和修正。
+- ⑥ 如果训练吞吐量只增加到某个批次大小为止，那么即使硬件支持更大的批次大小，我们**也应该**只考虑那个批次大小之前的批次大小。
+    -  ⑥-① 使用更大的批量大小的所有优势**都应当**假设训练吞吐量会增加。如果不会增加，就要解决瓶颈或使用较小的批量大小。
+    -  ⑥-② **梯度累积(Gradient accumulation)** 梯度累积虽然可以模拟更大的批量大小，但它通常并不提供计算吞吐量的提升，因此在实际应用中应该尽量避免使用。提示：梯度积累将小批量数据（micro-batches）在多次前向传播中累积梯度。在指定次数的累积后才执行一次参数更新。这样，相当于用更大的批量大小来更新模型，但无需一次性加载所有数据到显存中。
 上述步骤可能需要在每次更改模型或优化器时重复进行（例如，不同的模型架构可能允许使用更大的批次大小以适应内存）。
 
 </details>
 
-#### Choosing the batch size to minimize training time
+#### tip2: 选择批量大小以最小化训练时间
 
 <details><summary><em>[点击展开]</em></summary>
 
 <br>
 
+每一个batch需要的事件一般被称作每步时间 (time per step)；相应的，总步数是指总共的batch数量。训练时间，一般取决于每步时间和总步数：
 
-<p align="center">Training time = (time per step) x (total number of steps)</p>
+<p align="center">训练时间 = (每步时间) x (总步数)</p>
 
--   We can often consider the time per step to be approximately constant for all
-    feasible batch sizes. This is true when there is no overhead from parallel
-    computations and all training bottlenecks have been diagnosed and corrected
-    (see the
-    [previous section](#determining-the-feasible-batch-sizes-and-estimating-training-throughput)
-    for how to identify training bottlenecks). In practice, there is usually at
-    least some overhead from increasing the batch size.
--   As the batch size increases, the total number of steps needed to reach a
-    fixed performance goal typically decreases (provided all relevant
-    hyperparameters are re-tuned when the batch size is changed;
+-   ① 我们通常可以认为对于所有可行的批量大小，每步的时间大约是恒定的。这在没有并行计算的开销，并且所有训练瓶颈都已被诊断和修正的情况下是正确的
+    (参见
+    [上一小节](#确定可行的批次大小并估算训练吞吐量)。实际上，增加批量大小通常至少会带来一些开销。
+-   ② 随着批次大小的增加，达到理论可实现性能所需的总步数通常会减少 (前提是当批次大小改变时，所有相关的超参数都进行了合适的调整;
     [Shallue et al. 2018](https://arxiv.org/abs/1811.03600)).
-    -   E.g. Doubling the batch size might halve the total number of steps
-        required. This is called **perfect scaling**.
-    -   Perfect scaling holds for all batch sizes up to a critical batch size,
-        beyond which one achieves diminishing returns.
-    -   Eventually, increasing the batch size no longer reduces the number of
-        training steps (but never increases it).
--   Therefore, the batch size that minimizes training time is usually the
-    largest batch size that still provides a reduction in the number of training
-    steps required.
-    -   This batch size depends on the dataset, model, and optimizer, and it is
-        an open problem how to calculate it other than finding it experimentally
-        for every new problem. 🤖
-    -   When comparing batch sizes, beware the distinction between an example
-        budget/[epoch](https://developers.google.com/machine-learning/glossary#epoch)
-        budget (running all experiments while fixing the number of training
-        example presentations) and a step budget (running all experiments with
-        the number of training steps fixed).
-        -   Comparing batch sizes with an epoch budget only probes the perfect
-            scaling regime, even when larger batch sizes might still provide a
-            meaningful speedup by reducing the number of training steps
-            required.
-    -   Often, the largest batch size supported by the available hardware will
-        be smaller than the critical batch size. Therefore, a good rule of thumb
-        (without running any experiments) is to use the largest batch size
-        possible.
--   There is no point in using a larger batch size if it ends up increasing the
-    training time.
+    - ②-① 将批次大小翻倍应当会将所需的总步数减半。这被称为**完美缩放 (perfect scaling)**。换句话说，批量大小增大后，梯度估计应当更加准确了，每次更新的效果更接近目标，因此总的训练步数应当减少。
+    - ②-② 完美缩放**仅在**批量大小达到某个临界点之前有效，达到临界点后：增大批量大小收益反而会递减（diminishing returns）。换句话说，增加批量大小不再减少训练步数，但也不会增加。**原因**：批量大小过大时，梯度估计的噪声几乎消失，梯度更新的效果接近确定性（deterministic）。此时，增大批量大小无法提供额外的优化收益。
+-   ③ 因此，使训练时间最小化的批量大小**通常是**仍然能减少训练步骤所需的最大的批量大小，此时的梯度估计是稳定而去噪的。
+    -   ③-① 这个批量大小取决于数据集、模型和优化器，除了通过在每个新问题上进行实验，如何通过明确计算它仍然还是一个开放问题。🤖
+    -   ③-② 在比较批量大小时，请注意区分样本预算example
+        budget/[周期预算epoch budget](https://developers.google.com/machine-learning/glossary#epoch)
+        (在固定训练示例呈现次数的情况下运行所有实验) 和步骤预算step budget（在固定训练步骤次数的情况下运行所有实验）。提示：Epoch Budget假设每个实验都使用相同数量的样本（或相同的训练 epochs），这种方式仅能探测出批量大小在“完美扩展”范围内的效果；Step Budget假设每个实验都使用相同数量的训练步数，这可以更好地展示不同批量大小对优化效率的影响。当使用固定 Epoch Budget 时：可能会高估较小批量大小的表现，因为小批量可以通过更多的梯度更新步骤来弥补性能；使用固定 Step Budget 时：可以直接对比较大批量大小是否减少了训练步骤，从而实现更快的训练时间。
+    -   ③-③ 一般条件下，硬件支持的最大批量大小会小于临界批量大小。因此，在不运行任何实验的情况下，一个好的经验法则是使用可能的最大批量大小。
+-  ④ 如果更大的批量大小会导致训练时间增加，那么使用更大的批量大小就没有意义。
 
 </details>
 
-#### Choosing the batch size to minimize resource consumption
+#### tip3: 选择批次大小以最小化资源消耗
 
 <details><summary><em>[点击展开]</em></summary>
 
 <br>
 
 
--   There are two types of resource costs associated with increasing the batch
-    size:
-    1.  *Upfront costs*, e.g. purchasing new hardware or rewriting the training
-        pipeline to implement multi-GPU / multi-TPU training.
-    2.  *Usage costs*, e.g. billing against the team's resource budgets, billing
-        from a cloud provider, electricity / maintenance costs.
--   If there are significant upfront costs to increasing the batch size, it
-    might be better to defer increasing the batch size until the project has
-    matured and it is easier to assess the cost-benefit tradeoff. Implementing
-    multi-host parallel training programs can introduce
-    [bugs](#considerations-for-multi-host-pipelines) and
-    [subtle issues](#batch-normalization-implementation-details) so it is
-    probably better to start off with a simpler pipeline anyway. (On the other
-    hand, a large speedup in training time might be very beneficial early in the
-    process when a lot of tuning experiments are needed).
--   We refer to the total usage cost (which may include multiple different kinds
-    of costs) as the "resource consumption". We can break down the resource
-    consumption into the following components:
+-   增加批次大小相关的设备成本有两种类型：:
+    1.  *前期成本*, 例如购买新硬件或重写训练管道以实现多 GPU/多 TPU 训练。
+    2.  *使用成本*, 如根据团队的资源预算计费，从云提供商处计费，电费/维护成本。
+-   如果增加批次大小需要较大的前期成本，等到项目成熟后再增加批次大小，更容易评估成本效益权衡可能是更好的选择。实现多主机并行训练程序可能会引入[错误bugs](#多主机管道的注意事项) 和[隐含问题 subtle issues](#批量标准化Batch-normalization实现细节)，因此最好一开始使用更简单的管道。另一方面，如果早期需要进行大量调优实验，大幅缩短训练时间可能会非常有益。
+-   我们称总使用成本（可能包括多种不同的成本）为“资源消耗”(Resource consumption)。具体可以将资源消耗分解为以下组成部分：
 
-<p align="center">Resource consumption = (resource consumption per step) x (total number of steps)</p>
+<p align="center">资源消耗 = (每步资源消耗) x (总步数))</p>
 
--   Increasing the batch size usually allows us to
-    [reduce the total number of steps](#choosing-the-batch-size-to-minimize-training-time).
-    Whether the resource consumption increases or decreases will depend on how
-    the consumption per step changes.
-    -   Increasing the batch size might *decrease* the resource consumption. For
-        example, if each step with the larger batch size can be run on the same
-        hardware as the smaller batch size (with only a small increase in time
-        per step), then any increase in the resource consumption per step might
-        be outweighed by the decrease in the number of steps.
-    -   Increasing the batch size might *not change* the resource consumption.
-        For example, if doubling the batch size halves the number of steps
-        required and doubles the number of GPUs used, the total consumption (in
-        terms of GPU-hours) will not change.
-    -   Increasing the batch size might *increase* the resource consumption. For
-        example, if increasing the batch size requires upgraded hardware, the
-        increase in consumption per step might outweigh the reduction in the
-        number of steps.
+-   增加批量大小通常允许我们
+    [减少总步骤数](#选择批量大小以最小化训练时间).
+    资源消耗是增加还是减少将取决于每步消耗如何变化。
+    -   增加批量大小可能**会减少**资源消耗。例如，如果使用较大批量大小的每步操作可以在与较小批量大小相同的硬件上运行（仅时间略有增加），那么每步的资源消耗增加可能被步数的减少所抵消。
+    -   增加批量大小可能**不会改变**资源消耗。例如，如果将批量大小翻倍可以使步骤数量减半并使使用的 GPU 数量翻倍，那么总的消耗（以 GPU 小时计算）将不会改变。
+    -   增加批量大小可能**会增加**资源消耗。例如，如果增加批量大小需要升级硬件，每步的消耗增加可能会超过步数减少带来的好处。
 
 </details>
 
-#### Changing the batch size requires re-tuning most hyperparameters
+#### tip4: 更改批量大小需要重新调整大多数超参数
 
 <details><summary><em>[点击展开]</em></summary>
 
@@ -244,7 +197,7 @@
 
 </details>
 
-#### How batch norm interacts with the batch size
+#### tip5: 批量归一化与批次大小的关联
 
 <details><summary><em>[点击展开]</em></summary>
 
@@ -1417,7 +1370,7 @@ short description of the study.*
     and is convenient for the people doing it. Untracked experiments might as
     well not exist.
 
-### Batch normalization implementation details
+### 批量标准化Batch normalization实现细节
 
 ***Summary:*** *Nowadays batch norm can often be replaced with LayerNorm, but in
 cases where it cannot, there are tricky details when changing the batch size or
@@ -1441,7 +1394,7 @@ number of hosts.*
     implementations of batch norm do not synchronize these EMAs and only save
     the EMA from the first device.
 
-### Considerations for multi-host pipelines
+### 多主机管道的注意事项
 
 ***Summary:*** *for logging, evals, RNGs, checkpointing, and data sharding,
 multi-host training can make it very easy to introduce bugs!*
